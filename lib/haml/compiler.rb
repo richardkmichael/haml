@@ -1,4 +1,5 @@
 require 'cgi'
+require 'pry'
 
 module Haml
   module Compiler
@@ -64,11 +65,13 @@ END
     end
 
     def compile_script(&block)
+      # binding.pry
       push_script(@node.value[:text],
                   :preserve_script       => @node.value[:preserve],
                   :escape_html           => @node.value[:escape_html],
                   :nuke_inner_whitespace => nuke_inner_whitespace?(@node),
                   &block)
+      # binding.pry
     end
 
     def compile_silent_script
@@ -338,7 +341,9 @@ END
 
       unless block_given?
         push_generated_script(no_format ? "#{text}\n" : "#{static_method}(#{output_expr});")
-        concat_merged_text("\n") unless opts[:in_tag] || opts[:nuke_inner_whitespace]
+        # rstrip_buffer!
+        binding.pry
+        concat_merged_text("foo\n") unless opts[:in_tag] || opts[:nuke_inner_whitespace]
         return
       end
 
@@ -468,8 +473,10 @@ END
       parent = instance_variable_defined?('@node') ? @node : nil
       @node = node
       if node.children.empty?
+        puts "DEBUG: No children, compile_#{node.type}: #{node.value ? node.value[:text] : ''}"
         send(:"compile_#{node.type}")
       else
+        puts "DEBUG: compile_#{node.type}: #{node.value ? node.value[:text] : ''}"
         send(:"compile_#{node.type}") {node.children.each {|c| compile c}}
       end
     ensure
